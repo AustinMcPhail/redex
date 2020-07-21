@@ -1,12 +1,12 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React from 'react'
 import { ThemeProvider } from 'styled-components'
 import Layout from './components/Layout'
 import PokemonList from './components/PokemonList'
-import { PkmnProvider, IPokemonListItemDto } from './context/PokemonContext'
+import { PkmnProvider } from './context/PokemonContext'
 import Pokemon from './components/Pokemon'
 import { darkTheme, GlobalStyle } from './Theme'
 
-interface IAppProps {}
+interface IAppProps { }
 
 const App: React.SFC<IAppProps> = () => {
 	return (

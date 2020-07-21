@@ -18,12 +18,11 @@ module.exports = {
 		'semi': ['error', 'never'],
 		'quotes': [2, 'single'],
 		'array-element-newline': ['error', 'consistent'],
-		'array-bracket-newline': ['error', {'multiline': true}],
-		'indent': ['error', 'tab', { 'SwitchCase': 1, 'ArrayExpression': 'off' }],
+		'array-bracket-newline': ['error', { 'multiline': true }],
 		'@typescript-eslint/no-empty-interface': [
 			0,
 			{
-			  'allowSingleExtends': true
+				'allowSingleExtends': true
 			}
 		],
 		'no-mixed-spaces-and-tabs': 0

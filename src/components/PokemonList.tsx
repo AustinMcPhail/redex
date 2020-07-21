@@ -1,8 +1,9 @@
-import React, { ReactElement } from 'react'
+import React, { ReactElement, useState } from 'react'
 import styled from 'styled-components'
-import { PkmnConsumer } from '../context/PokemonContext'
+import { PkmnConsumer, IPokemonListItemDto } from '../context/PokemonContext'
 import { titleCase } from '../utils'
 import { AppThemeBase } from '../Theme'
+import pokeball from './pokeball_icon.png'
 
 const PokemonListContainer = styled.section`
     margin-bottom: 25px;
@@ -57,30 +58,36 @@ const Search = styled.input`
 `
 
 
-const PokemonList = (): ReactElement => {    
-	return (
-		<PkmnConsumer>
-			{({pokemonList, selectPokemon}) => pokemonList ? (
-				<PokemonListContainer>
-					<Search type="text" placeholder="Search for a Pokemon..."/>
-					<PokemonListWrapper id='pkmnList'>
-						{pokemonList.map((p, i: number) => {
-							return <PokemonListItemWrapper key={p.name} onClick={() => selectPokemon(p)}>
-						    <h3>{titleCase(p.name)}</h3> <img src={`https://assets.thesilphroad.com/img/pokemon/icons/96x96/${i + 1}.png`} alt={`${p.name} Sprite`}/>
-							</PokemonListItemWrapper>
-						})}
-				    </PokemonListWrapper>
-				</PokemonListContainer>
-			) : (
-				<PokemonListContainer>
-					<PokemonListWrapper id='pkmnList'>
-						<PokemonListItemWrapper>
-							<h2>Loading...</h2>
-						</PokemonListItemWrapper>
-					</PokemonListWrapper>
-				</PokemonListContainer>
-			)}
-		</PkmnConsumer>
-	)
+const PokemonList = (): ReactElement => {
+    const [search, setSearch] = useState('')
+
+    const searchFunc = (p: IPokemonListItemDto) => {
+        return p.name.toLocaleLowerCase().includes(search.toLocaleLowerCase())
+    }
+
+    return (
+        <PkmnConsumer>
+            {({ pokemonList, selectPokemon }) => pokemonList ? (
+                <PokemonListContainer>
+                    <Search type="text" placeholder="Search for a Pokemon..." value={search} onChange={(e) => setSearch(e.target.value)} />
+                    <PokemonListWrapper id='pkmnList'>
+                        {pokemonList.filter(searchFunc).map((p, i: number) => {
+                            return <PokemonListItemWrapper key={p.name} onClick={() => selectPokemon(p)}>
+                                <h3>{titleCase(p.name)}</h3> <img src={p.sprite || pokeball} alt={`${p.name} Sprite`} />
+                            </PokemonListItemWrapper>
+                        })}
+                    </PokemonListWrapper>
+                </PokemonListContainer>
+            ) : (
+                    <PokemonListContainer>
+                        <PokemonListWrapper id='pkmnList'>
+                            <PokemonListItemWrapper>
+                                <h2>Loading...</h2>
+                            </PokemonListItemWrapper>
+                        </PokemonListWrapper>
+                    </PokemonListContainer>
+                )}
+        </PkmnConsumer>
+    )
 }
 export default PokemonList

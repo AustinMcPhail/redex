@@ -4,7 +4,7 @@ import styled, { keyframes } from 'styled-components'
 import { AppThemeBase } from '../Theme'
 import { getTypeBadge } from '../styled/type-badges'
 import pokeball from './pokeball_icon.png'
-import {titleCase} from '../utils'
+import { titleCase } from '../utils'
 
 const PokemonWrapper = styled.section`
     margin: 25px;
@@ -22,11 +22,12 @@ const PokemonWrapper = styled.section`
 
     background-color: ${({ theme }: { theme: AppThemeBase }) => theme.pokedexBlack};
 
-    overflow-y: scroll;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: grid;
+	grid-template-areas:
+    	'details evolutions'
+    	'details moves';
+	grid-gap: 10px;
+	padding: 10px;
 `
 
 const TypesWrapper = styled.div`
@@ -64,91 +65,95 @@ const LoadingPokemonSprite = styled(NoPokemonSprite)`
     animation: ${rotate} 2s linear infinite;
 `
 
-const Details = styled.div`
-    display: flex;
+const Details = styled.section`
+	grid-area: details;
+
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
 `
 
-const Moves = styled.section`
-    flex-grow: 1;
-    
-    table > tbody {
-        display: block;
-        width: 100%;
-        height: 250px;
-        overflow-y: scroll;
-    }
+const Moves = styled.ul`
+	grid-area: moves;
+
+	overflow-y: scroll;
+`
+
+const Evolutions = styled.section`
+	grid-area: evolutions;
+`
+
+const Move = styled.li`
+	margin-bottom: .5rem;
+	padding: .5rem;
+	background: ${({ theme }: { theme: AppThemeBase }) => theme.pokedexGreen};
+	color: ${({ theme }: { theme: AppThemeBase }) => theme.pokedexBlack};
+	border-radius: 10px;
 `
 
 const Pokemon = (): ReactElement => {
 	return (
 		<PkmnConsumer>
-			{ ({currentPokemon, loadingCurrent}) => currentPokemon || loadingCurrent ? (
+			{({ currentPokemon, loadingCurrent }) => currentPokemon || loadingCurrent ? (
 				currentPokemon && !loadingCurrent ? (
 					<PokemonWrapper>
-                    	<PokemonSprite src={`https://assets.thesilphroad.com/img/pokemon/icons/96x96/${currentPokemon.id}.png`} alt={`${currentPokemon.name} Sprite`}/>
-						<div style={{display: 'flex', marginBottom: '10px'}}>
-							<h1>{titleCase(currentPokemon.name)}</h1> <span>&nbsp;{currentPokemon.id}</span>
-						</div>
-						<TypesWrapper>
-							{currentPokemon.types.map(type => getTypeBadge(type))}
-						</TypesWrapper>
 						<Details>
-							{/* <Moves id="moves">
-								<ul>
-									{currentPokemon.moves.map(move => <li key={move.move.name}>{move.move.url}</li>)}
-								</ul>
-							</Moves> */}
-							<Moves id="moves">
-								<table>
-									<thead style={{borderBottom: 'solid 1px white'}}>
-										<tr>
-											<th><strong>Move</strong></th>
-											<th><strong>Learn Method</strong></th>
-										</tr>
-									</thead>
-									<tbody>
-										{currentPokemon.moves.map(move => {
-											return (
-												<tr style={{ maxHeight: '50px', borderBottom: '1px solid green', marginTop: '5px', overflowY: 'hidden' }} key={move.move.name}>
-													<td>{move.move.name}</td>
-													<td>
-														<ul style={{overflowY: 'scroll'}}>
-															{move.version_group_details.map(v => {
-																return v.move_learn_method.name == 'level-up' ? (
-																	<li key={move.move.name + '_' + v.version_group.name}>
-																		{v.move_learn_method.name}&nbsp;-&nbsp;{v.level_learned_at}
-																	</li>
-																) : (
-																	<li key={move.move.name + '_' + v.version_group.name}>
-																		{v.move_learn_method.name}
-																	</li>
-																)
-															})}
-														</ul>
-													</td>
-												</tr>
-											)
-										})} 
-									</tbody> 
-								</table>
-							</Moves>
+							<PokemonSprite src={currentPokemon.sprites.front_default} alt={`${currentPokemon.name} Sprite`} />
+							<div style={{ display: 'flex', marginBottom: '10px' }}>
+								<h1>{titleCase(currentPokemon.name)}</h1> <span>&nbsp;{currentPokemon.id}</span>
+							</div>
+							<TypesWrapper>
+								{currentPokemon.types.map(type => getTypeBadge(type))}
+							</TypesWrapper>
 						</Details>
-				    </PokemonWrapper>
+						<Moves>
+							{currentPokemon.moves.map(move => {
+								return (
+									<Move key={move.move.name}>
+										<span>{move.move.name}</span>
+									</Move>
+									// <tr style={{ maxHeight: '50px', borderBottom: '1px solid green', marginTop: '5px', overflowY: 'hidden' }} key={move.move.name}>
+									// 	<td>{move.move.name}</td>
+									// 	<td>
+									// 		<ul style={{ overflowY: 'scroll' }}>
+									// 			{move.version_group_details.map(v => {
+									// 				return v.move_learn_method.name == 'level-up' ? (
+									// 					<li key={move.move.name + '_' + v.version_group.name}>
+									// 						{v.move_learn_method.name}&nbsp;-&nbsp;{v.level_learned_at}
+									// 					</li>
+									// 				) : (
+									// 						<li key={move.move.name + '_' + v.version_group.name}>
+									// 							{v.move_learn_method.name}
+									// 						</li>
+									// 					)
+									// 			})}
+									// 		</ul>
+									// 	</td>
+									// </tr>
+								)
+							})}
+						</Moves>
+						<Evolutions>Evolutions</Evolutions>
+					</PokemonWrapper>
 				) : (
-					<PokemonWrapper>
-                    	<div style={{width: '200px', height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-							<LoadingPokemonSprite src={pokeball} alt="No Pokemon Selected"/>
-						</div>
-                        Loading...
-				    </PokemonWrapper>
-				)
+						<PokemonWrapper>
+							<Details>
+								<div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+									<LoadingPokemonSprite src={pokeball} alt="No Pokemon Selected" />
+								</div>
+							</Details>
+						</PokemonWrapper>
+					)
 			) : (
-				<PokemonWrapper>
-					<div style={{width: '200px', height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-						<NoPokemonSprite src={pokeball} alt="No Pokemon Selected"/>
-					</div>
-				</PokemonWrapper>
-			)}
+					<PokemonWrapper>
+						<Details>
+							<div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+								<NoPokemonSprite src={pokeball} alt="No Pokemon Selected" />
+							</div>
+						</Details>
+					</PokemonWrapper>
+				)}
 		</PkmnConsumer>
 	)
 }

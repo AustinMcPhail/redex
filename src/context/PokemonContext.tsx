@@ -10,6 +10,7 @@ interface Props {
 export interface IPokemonListItemDto {
 	name: string
 	url: string
+	sprite?: string
 }
 
 export interface IPokemonState {
@@ -50,10 +51,25 @@ export class PkmnProvider extends Component<Props, IPokemonState> {
 
     componentDidMount(): void {
     	const P = new Pokedex.Pokedex()
-    	P.resource('/api/v2/pokemon?limit=649').then((res: any) => {
+    	P.resource('/api/v2/pokemon?limit=50').then(({results}: {results: IPokemonListItemDto[]}) => {
     		this.setState({
-    			pokemonList: res.results
-    		})
+    			pokemonList: results
+			})
+			results.forEach((p, i) => {
+				P.getPokemonByName(p.name).then((res: any) => {
+					this.setState({
+						...this.state,
+						pokemonList: this.state.pokemonList?.map(pokemon => {
+							if (pokemon.name !== p.name) {
+								return pokemon
+							}
+
+							pokemon.sprite = res.sprites.front_default
+							return pokemon
+						})
+					})
+				})
+			})
     	})
     }
 
